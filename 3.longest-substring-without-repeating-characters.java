@@ -8,19 +8,20 @@
 
 class Solution {
     public int lengthOfLongestSubstring(String s) {
-        Set<Character> window = new HashSet<>();
+        HashMap<Character,Integer> lol = new HashMap<>();
         int left = 0;
         int maxLength = 0;
-        for(int i = 0 ; i < s.length() ; i++) {
-            while(window.contains(s.charAt(i)))
+        for(int i= 0; i < s.length() ; i++)
+        {
+            if(lol.containsKey(s.charAt(i))&& lol.get(s.charAt(i)) >= left)
             {
-                window.remove(s.charAt(left));
-                left++;
+                left = lol.get(s.charAt(i)) + 1;
             }
-            window.add(s.charAt(i));
-            int currlength = i - left + 1;
-            maxLength = Math.max(maxLength , currlength);
 
+
+            lol.put(s.charAt(i), i);
+            int curr = i - left + 1;
+            maxLength = Math.max(maxLength , curr);
         }
         return maxLength;
     }
