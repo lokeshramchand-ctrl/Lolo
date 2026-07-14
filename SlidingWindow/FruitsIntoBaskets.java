@@ -1,24 +1,29 @@
-public class MaximumConsecutiveOnesIII {
+import java.util.HashMap;
+
+public class FruitsIntoBaskets {
 
     public static void main(String[] args) {
 
-        int[] nums = { 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0 };
-        int k = 2;
+        int[] fruits = { 1, 2, 3, 2, 2 };
 
         // ============================================================
         // Problem:
         //
-        // You may flip AT MOST k zeros into ones.
+        // We have only TWO baskets.
+        // Each basket can contain ONLY ONE TYPE of fruit.
         //
-        // Return the maximum number of consecutive ones.
+        // Find the longest CONTINUOUS subarray containing
+        // AT MOST TWO DISTINCT fruit types.
         //
         // Example:
         //
-        // nums = [1,1,1,0,0,0,1,1,1,1,0]
+        // [1,2,3,2,2]
         //
-        // k = 2
+        // Answer:
         //
-        // Answer = 6
+        // [2,3,2,2]
+        //
+        // Length = 4
         // ============================================================
 
         // ============================================================
@@ -26,70 +31,58 @@ public class MaximumConsecutiveOnesIII {
         //
         // Intuition:
         //
-        // Start from every possible index.
+        // Start from every possible tree.
         //
-        // Keep extending to the right.
+        // Keep collecting fruits until a third fruit type appears.
         //
-        // Count how many zeros appear.
-        //
-        // If zeros become greater than k,
-        // stop this starting point.
+        // Then stop and try the next starting tree.
         //
         // TC : O(n²)
         // SC : O(1)
+        // (HashMap stores at most 3 fruit types before breaking.)
         // ============================================================
 
         /*
          * int maxLength = 0;
          * 
          * // Try every possible starting index.
-         * for (int left = 0; left < nums.length; left++) {
+         * for (int left = 0; left < fruits.length; left++) {
          * 
-         * int zeroCount = 0;
+         * HashMap<Integer, Integer> basket = new HashMap<>();
          * 
-         * // Extend window.
-         * for (int right = left; right < nums.length; right++) {
+         * // Extend the window.
+         * for (int right = left; right < fruits.length; right++) {
          * 
          * // ---------------------------------------------
-         * // RIGHT enters window.
+         * // RIGHT picks current fruit.
          * //
          * // Example
          * //
-         * // [1,1,1,0,0,0,1]
+         * // [1,2,3,2,2]
          * // L
          * // R
          * //
          * // Window
          * //
-         * // [1,1,1,0]
+         * // [1,2,3]
          * // ---------------------------------------------
          * 
-         * if (nums[right] == 0) {
+         * basket.put(
+         * fruits[right],
+         * basket.getOrDefault(fruits[right], 0) + 1);
          * 
-         * zeroCount++;
-         * 
-         * // Example
-         * //
-         * // Window
-         * //
-         * // [1,1,1,0]
-         * //
-         * // zeroCount = 1
-         * }
-         * 
-         * // Too many zeros.
-         * if (zeroCount > k) {
+         * // Basket contains more than two fruit types.
+         * if (basket.size() > 2) {
          * 
          * // Example
          * //
-         * // Window
+         * // Basket
          * //
-         * // [1,1,1,0,0,0]
+         * // {1,2,3}
          * //
-         * // zeroCount = 3
+         * // Three fruit types.
          * //
-         * // Cannot flip
-         * // more than k zeros.
+         * // Cannot continue.
          * break;
          * }
          * 
@@ -108,87 +101,89 @@ public class MaximumConsecutiveOnesIII {
         // Intuition:
         //
         // Instead of restarting from every left,
-        // maintain ONE window.
+        // maintain ONE sliding window.
         //
-        // RIGHT expands.
+        // Expand using RIGHT.
         //
-        // If zeroCount becomes greater than k,
-        // move LEFT until window becomes valid.
+        // Whenever basket becomes invalid
+        // (more than two fruit types),
+        //
+        // shrink from LEFT until valid again.
         //
         // TC : O(n)
         // SC : O(1)
+        // (HashMap stores at most 3 keys.)
         // ============================================================
 
+        HashMap<Integer, Integer> basket = new HashMap<>();
+
         int left = 0;
-        int zeroCount = 0;
         int maxLength = 0;
 
         // RIGHT expands the window.
-        for (int right = 0; right < nums.length; right++) {
+        for (int right = 0; right < fruits.length; right++) {
 
             // -----------------------------------------------------
             // RIGHT MOVES
             //
             // Example
             //
-            // [1,1,1,0,0,0,1,1,1,1,0]
+            // [1,2,3,2,2]
             // L
             // R
             //
             // Current Window
             //
-            // [1,1,1,0]
+            // [1,2,3]
             // -----------------------------------------------------
 
-            if (nums[right] == 0) {
-
-                zeroCount++;
-
-                // Window
-                //
-                // [1,1,1,0]
-                //
-                // zeroCount = 1
-            }
+            basket.put(
+                    fruits[right],
+                    basket.getOrDefault(fruits[right], 0) + 1);
 
             // -----------------------------------------------------
             // Window became invalid.
             //
-            // zeroCount > k
+            // More than two fruit types.
             //
             // Shrink from LEFT.
             // -----------------------------------------------------
 
-            while (zeroCount > k) {
+            while (basket.size() > 2) {
 
                 // Example
                 //
-                // Window
+                // Basket
                 //
-                // [1,1,1,0,0,0]
+                // 1 -> 1
+                // 2 -> 1
+                // 3 -> 1
                 //
-                // zeroCount = 3
-                //
-                // Need to remove
-                // elements from LEFT.
+                // Remove left fruit.
 
-                if (nums[left] == 0) {
+                basket.put(
+                        fruits[left],
+                        basket.get(fruits[left]) - 1);
 
-                    zeroCount--;
+                // If frequency becomes zero,
+                // that fruit completely disappeared
+                // from the current window.
 
-                    // One zero left the window.
+                if (basket.get(fruits[left]) == 0) {
+
+                    basket.remove(fruits[left]);
                 }
 
                 // LEFT MOVES
                 //
                 // Before
                 //
-                // [1,1,1,0,0,0]
+                // [1,2,3]
                 // L
                 //
                 // After
                 //
-                // [1,1,0,0,0]
+                // [2,3]
                 // L
 
                 left++;
@@ -197,9 +192,8 @@ public class MaximumConsecutiveOnesIII {
             // -----------------------------------------------------
             // Window is valid.
             //
-            // zeroCount <= k
-            //
-            // Update answer.
+            // Basket contains
+            // at most two fruit types.
             // -----------------------------------------------------
 
             int currentLength = right - left + 1;
@@ -208,18 +202,14 @@ public class MaximumConsecutiveOnesIII {
 
             // Example
             //
-            // left = 4
-            // right = 9
+            // left = 1
+            // right = 4
             //
             // Window
             //
-            // [0,0,1,1,1,1]
+            // [2,3,2,2]
             //
-            // Flip both zeros.
-            //
-            // [1,1,1,1,1,1]
-            //
-            // length = 6
+            // length = 4
         }
 
         System.out.println("Optimal Answer : " + maxLength);
